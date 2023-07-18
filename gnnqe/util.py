@@ -196,3 +196,16 @@ class DebugHook:
 def setup_debug_hook():
     import sys
     sys.excepthook = DebugHook()
+
+def _size_to_index(size):
+    """
+    Convert sizes to variadic indexes.
+    Example::
+        >>> index = _size_to_index(torch.tensor([3, 2, 1]))
+        >>> assert (index == torch.tensor([0, 0, 0, 1, 1, 2])).all()
+    Parameters:
+        size (LongTensor): size of each sample
+    """
+    range = torch.arange(len(size), device=size.device)
+    index2sample = range.repeat_interleave(size)
+    return index2sample

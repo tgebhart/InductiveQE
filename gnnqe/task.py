@@ -10,6 +10,8 @@ from torchdrug import core, tasks, metrics
 from torchdrug.layers import functional
 from torchdrug.core import Registry as R
 
+from ..util import _size_to_index
+
 
 @R.register("task.LogicalQuery")
 class LogicalQuery(tasks.Task, core.Configurable):
@@ -116,7 +118,7 @@ class LogicalQuery(tasks.Task, core.Configurable):
         num_easy = easy_answer.sum(dim=-1)
         num_hard = hard_answer.sum(dim=-1)
         num_answer = num_easy + num_hard
-        answer2query = functional._size_to_index(num_answer)
+        answer2query = _size_to_index(num_answer)
         order = pred.argsort(dim=-1, descending=True)
         range = torch.arange(self.num_entity, device=self.device)
         ranking = scatter_add(range.expand_as(order), order, dim=-1)
@@ -245,7 +247,7 @@ class InductiveLogicalQuery(LogicalQuery):
         num_easy = easy_answer.sum(dim=-1)
         num_hard = hard_answer.sum(dim=-1)
         num_answer = num_easy + num_hard
-        answer2query = functional._size_to_index(num_answer)
+        answer2query = _size_to_index(num_answer)
         num_entity = pred.shape[-1]
 
         if limit_nodes is not None:
@@ -279,7 +281,7 @@ class InductiveLogicalQuery(LogicalQuery):
             num_easy = easy_answer.sum(dim=-1)
             num_hard = hard_answer.sum(dim=-1)
             num_answer = num_easy + num_hard
-            answer2query = functional._size_to_index(num_answer)
+            answer2query = _size_to_index(num_answer)
             order = pred.argsort(dim=-1, descending=True)
             num_entity = pred.shape[-1]
             ranking = scatter_add(torch.arange(num_entity).expand_as(order), order, dim=-1)
@@ -429,14 +431,14 @@ class InductiveKnowledgeGraphCompletion(tasks.KnowledgeGraphCompletion, core.Con
         pattern = torch.stack([pos_h_index, any, pos_r_index], dim=-1)
         edge_index, num_t_truth = graph.match(pattern)
         t_truth_index = graph.edge_list[edge_index, 1]
-        pos_index = functional._size_to_index(num_t_truth)
+        pos_index = _size_to_index(num_t_truth)
         t_mask = torch.ones(batch_size, graph.num_node, dtype=torch.bool, device=self.device)
         t_mask[pos_index, t_truth_index] = 0
 
         pattern = torch.stack([any, pos_t_index, pos_r_index], dim=-1)
         edge_index, num_h_truth = graph.match(pattern)
         h_truth_index = graph.edge_list[edge_index, 0]
-        pos_index = functional._size_to_index(num_h_truth)
+        pos_index = _size_to_index(num_h_truth)
         h_mask = torch.ones(batch_size, graph.num_node, dtype=torch.bool, device=self.device)
         h_mask[pos_index, h_truth_index] = 0
 
@@ -511,7 +513,7 @@ def variadic_area_under_roc(pred, target, size):
         target (Tensor): target of shape :math:`(B,)`.
         size (Tensor): size of sets of shape :math:`(N,)`
     """
-    index2graph = functional._size_to_index(size)
+    index2graph = _size_to_index(size)
     _, order = functional.variadic_sort(pred, size, descending=True)
     cum_size = (size.cumsum(0) - size)[index2graph]
     target = target[order + cum_size]

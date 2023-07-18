@@ -9,7 +9,6 @@ task:
   class: InductiveLogicalQuery
   model:
     class: HeuristicBaseline
-    inverse_mode: "2x"
   criterion: bce
   sample_weight: no
   adversarial_temperature: 0.1

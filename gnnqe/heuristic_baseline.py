@@ -8,6 +8,7 @@ from torchdrug.layers import functional
 from torchdrug.core import Registry as R
 
 from .data import Stack
+from ..util import _size_to_index
 
 
 @R.register("model.HeuristicBaseline")
@@ -98,7 +99,7 @@ class HeuristicBaseline(nn.Module, core.Configurable):
         pattern = torch.stack([any, any, r_index], dim=-1)
         edge_index, num_match = graph.match(pattern)
         t_index = graph.edge_list[edge_index, 1]
-        sample_index = functional._size_to_index(num_match)
+        sample_index = _size_to_index(num_match)
 
         x = torch.zeros(mask.sum(), graph.num_node, device=self.device)
         x[sample_index, t_index] = 1
