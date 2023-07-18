@@ -10,7 +10,7 @@ from torchdrug import core, tasks, metrics
 from torchdrug.layers import functional
 from torchdrug.core import Registry as R
 
-from ..util import _size_to_index
+from .util import _size_to_index
 
 
 @R.register("task.LogicalQuery")

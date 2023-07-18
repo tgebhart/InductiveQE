@@ -8,7 +8,7 @@ from torchdrug.layers import functional
 from torchdrug.core import Registry as R
 
 from .data import Stack
-from ..util import _size_to_index
+from .util import _size_to_index
 
 
 @R.register("model.HeuristicBaseline")
